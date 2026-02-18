@@ -16,6 +16,7 @@ To build from source, you need Rust and Maturin:
 python3 -m venv env
 source env/bin/activate
 pip install maturin
+cd python
 maturin develop
 ```
 
