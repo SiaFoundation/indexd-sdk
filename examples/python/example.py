@@ -85,12 +85,13 @@ async def main():
     print(f"Upload finished {len(objects)} objects in {elapsed}")
 
     start = datetime.now(timezone.utc)
-    writer = BytesWriter(BytesIO())
+    buffer = BytesIO()
+    writer = BytesWriter(buffer)
     print(f"Downloading object {objects[-1].id()} {objects[-1].size()} bytes")
     await sdk.download(writer, objects[-1], DownloadOptions())
     elapsed = datetime.now(timezone.utc) - start
     print(
-        f"Downloaded object {objects[-1].id()} with {len(writer._stream.getvalue())} bytes in {elapsed}"
+        f"Downloaded object {objects[-1].id()} with {len(buffer.getvalue())} bytes in {elapsed}"
     )
 
     # Convenience functions for simple cases
