@@ -1,0 +1,156 @@
+name: Swift SDK build
+
+on:
+  push:
+    branches:
+      - master
+      - pj/add-swift
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: 'Create GitHub Release'
+        required: false
+        type: boolean
+        default: false
+      version:
+        description: 'Release version (e.g., 1.0.0)'
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build XCFramework
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Checkout sia-sdk-rs
+        uses: actions/checkout@v4
+        with:
+          repository: SiaFoundation/sia-sdk-rs
+          path: sia-sdk-rs
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-ios,aarch64-apple-ios-sim,x86_64-apple-ios,aarch64-apple-darwin,x86_64-apple-darwin
+
+      - name: Cache Cargo
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: sia-sdk-rs
+
+      - name: Build XCFramework
+        run: SIA_SDK_RS_PATH=${{ github.workspace }}/sia-sdk-rs ./swift/build.sh
+
+      - name: Upload XCFramework
+        uses: actions/upload-artifact@v4
+        with:
+          name: IndexdSDKFFI-xcframework
+          path: build/IndexdSDKFFI.xcframework.zip
+
+      - name: Compute and save checksum
+        run: |
+          CHECKSUM=$(swift package compute-checksum build/IndexdSDKFFI.xcframework.zip)
+          echo "$CHECKSUM" > checksum.txt
+          echo "Checksum: $CHECKSUM"
+
+      - name: Upload checksum
+        uses: actions/upload-artifact@v4
+        with:
+          name: checksum
+          path: checksum.txt
+
+  test:
+    name: Test Swift package
+    needs: build
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download XCFramework
+        uses: actions/download-artifact@v4
+        with:
+          name: IndexdSDKFFI-xcframework
+          path: build
+
+      - name: Extract XCFramework
+        run: unzip -q build/IndexdSDKFFI.xcframework.zip -d build
+
+      - name: Build package
+        run: INDEXD_SDK_USE_LOCAL_XCFRAMEWORK=1 swift build
+
+      - name: Build example
+        run: |
+          cd examples/swift
+          INDEXD_SDK_USE_LOCAL_XCFRAMEWORK=1 swift build
+
+  publish:
+    name: Publish to GitHub Releases
+    needs: [build, test]
+    runs-on: ubuntu-latest
+    if: github.event.inputs.publish == 'true' && github.event.inputs.version != ''
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download XCFramework
+        uses: actions/download-artifact@v4
+        with:
+          name: IndexdSDKFFI-xcframework
+          path: dist
+
+      - name: Download checksum
+        uses: actions/download-artifact@v4
+        with:
+          name: checksum
+          path: dist
+
+      - name: Prepare release assets
+        run: |
+          cd dist
+          mv IndexdSDKFFI.xcframework.zip IndexdSDKFFI-${{ github.event.inputs.version }}.xcframework.zip
+          CHECKSUM=$(cat checksum.txt)
+          echo "IndexdSDKFFI-${{ github.event.inputs.version }}.xcframework.zip: $CHECKSUM" > CHECKSUMS.txt
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ github.event.inputs.version }}
+          name: IndexdSDK Swift v${{ github.event.inputs.version }}
+          body: |
+            ## IndexdSDK for Swift v${{ github.event.inputs.version }}
+
+            ### Installation
+
+            #### Swift Package Manager
+
+            Add to your `Package.swift`:
+            ```swift
+            dependencies: [
+                .package(url: "https://github.com/SiaFoundation/indexd-sdk", from: "${{ github.event.inputs.version }}")
+            ]
+            ```
+
+            Or add via Xcode: File → Add Packages → Enter repository URL.
+
+            #### CocoaPods
+
+            ```ruby
+            pod 'IndexdSDK', '~> ${{ github.event.inputs.version }}'
+            ```
+
+            ### Checksum
+            ```
+            $(cat dist/CHECKSUMS.txt)
+            ```
+          files: |
+            dist/IndexdSDKFFI-${{ github.event.inputs.version }}.xcframework.zip
+            dist/CHECKSUMS.txt
+          draft: false
+          prerelease: false
