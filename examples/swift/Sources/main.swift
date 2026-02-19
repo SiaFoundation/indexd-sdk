@@ -78,9 +78,8 @@ struct IndexdSDKExample {
         let indexerUrl = ProcessInfo.processInfo.environment["SIA_INDEXER_URL"] ?? "https://app.sia.storage"
 
         do {
-            let builder = try Builder(indexerUrl: indexerUrl)
-
-            let builder = try await builder.requestConnection(meta: AppMeta(
+            let builder = try await Builder(indexerUrl: indexerUrl)
+                .requestConnection(meta: AppMeta(
                 id: appId,
                 name: "swift example",
                 description: "an example app",

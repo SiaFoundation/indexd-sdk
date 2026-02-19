@@ -48,10 +48,8 @@ import IndexdSDK
 setLogger(logger: MyLogger(), level: "debug")
 
 // Create a builder and connect
-let builder = try Builder(indexerUrl: "https://app.sia.storage")
-
-// Request connection approval
-let builder = try await builder.requestConnection(meta: AppMeta(
+let builder = try await Builder(indexerUrl: "https://app.sia.storage")
+    .requestConnection(meta: AppMeta(
     id: appId,
     name: "My App",
     description: "App description",
