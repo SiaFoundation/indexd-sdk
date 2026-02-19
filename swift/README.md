@@ -20,6 +20,17 @@ dependencies: [
 ]
 ```
 
+Then add `IndexdSDK` to your target's dependencies:
+
+```swift
+.target(
+    name: "YourTarget",
+    dependencies: [
+        .product(name: "IndexdSDK", package: "indexd-sdk")
+    ]
+)
+```
+
 Or in Xcode: File → Add Packages → enter the repository URL.
 
 ### CocoaPods
@@ -40,7 +51,7 @@ setLogger(logger: MyLogger(), level: "debug")
 let builder = try Builder(indexerUrl: "https://app.sia.storage")
 
 // Request connection approval
-_ = try await builder.requestConnection(meta: AppMeta(
+let builder = try await builder.requestConnection(meta: AppMeta(
     id: appId,
     name: "My App",
     description: "App description",

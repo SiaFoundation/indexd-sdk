@@ -111,12 +111,26 @@ jobs:
           name: checksum
           path: dist
 
+      - name: Validate version format
+        env:
+          VERSION: ${{ github.event.inputs.version }}
+        run: |
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Error: version must be in semver format (e.g., 1.0.0), got: $VERSION"
+            exit 1
+          fi
+
       - name: Prepare release assets
+        env:
+          VERSION: ${{ github.event.inputs.version }}
         run: |
           cd dist
-          mv IndexdSDKFFI.xcframework.zip IndexdSDKFFI-${{ github.event.inputs.version }}.xcframework.zip
-          CHECKSUM=$(cat checksum.txt)
-          echo "IndexdSDKFFI-${{ github.event.inputs.version }}.xcframework.zip: $CHECKSUM" > CHECKSUMS.txt
+          mv IndexdSDKFFI.xcframework.zip "IndexdSDKFFI-${VERSION}.xcframework.zip"
+          SHA256=$(shasum -a 256 "IndexdSDKFFI-${VERSION}.xcframework.zip" | cut -d' ' -f1)
+          SPM_CHECKSUM=$(cat checksum.txt)
+          echo "IndexdSDKFFI-${VERSION}.xcframework.zip: $SHA256" > CHECKSUMS.txt
+          echo "CHECKSUM_CONTENT=$(cat CHECKSUMS.txt)" >> "$GITHUB_ENV"
+          echo "SPM_CHECKSUM=$SPM_CHECKSUM" >> "$GITHUB_ENV"
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
@@ -145,9 +159,15 @@ jobs:
             pod 'IndexdSDK', '~> ${{ github.event.inputs.version }}'
             ```
 
-            ### Checksum
+            ### Checksums
+            SHA-256:
             ```
-            $(cat dist/CHECKSUMS.txt)
+            ${{ env.CHECKSUM_CONTENT }}
+            ```
+
+            SPM (`swift package compute-checksum`):
+            ```
+            ${{ env.SPM_CHECKSUM }}
             ```
           files: |
             dist/IndexdSDKFFI-${{ github.event.inputs.version }}.xcframework.zip
