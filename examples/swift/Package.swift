@@ -15,7 +15,7 @@ let package = Package(
         .executableTarget(
             name: "IndexdExample",
             dependencies: [
-                .product(name: "IndexdSDK", package: "IndexdSDK"),
+                .product(name: "IndexdSDK", package: "indexd-sdk"),
             ],
             path: "Sources"
         )
