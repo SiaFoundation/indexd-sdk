@@ -76,6 +76,9 @@ let writer = BytesWriter()
 try await sdk.download(w: writer, object: objects[0], options: DownloadOptions())
 ```
 
+`MyLogger`, `BytesReader`, and `BytesWriter` are user-defined types that conform to
+the SDK's `Logger`, `Reader`, and `Writer` protocols.
+
 A complete working example is available in [examples/swift/](../examples/swift/).
 
 ## Local Development
@@ -84,8 +87,8 @@ A complete working example is available in [examples/swift/](../examples/swift/)
 # Install Rust targets (first time only)
 rustup target add aarch64-apple-ios aarch64-apple-ios-sim x86_64-apple-ios aarch64-apple-darwin x86_64-apple-darwin
 
-# Build the XCFramework (requires sia-sdk-rs checkout)
-SIA_SDK_RS_PATH=/path/to/sia-sdk-rs ./swift/build.sh
+# Build the XCFramework
+./swift/build.sh
 
 # Build the package locally
 INDEXD_SDK_USE_LOCAL_XCFRAMEWORK=1 swift build

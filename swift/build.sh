@@ -8,17 +8,12 @@ set -euo pipefail
 #                     aarch64-apple-darwin x86_64-apple-darwin
 #
 # Usage:
-#   SIA_SDK_RS_PATH=/path/to/sia-sdk-rs ./swift/build.sh
-
-if [ -z "${SIA_SDK_RS_PATH:-}" ]; then
-    echo "Error: SIA_SDK_RS_PATH must be set to the path of the sia-sdk-rs repository"
-    exit 1
-fi
+#   ./swift/build.sh
 
 SWIFT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SWIFT_DIR/.." && pwd)"
 
-CRATE="indexd_ffi"
+PACKAGE="indexd-sdk"
 LIB="libindexd_ffi"
 FFI_MODULE="IndexdSDKFFI"
 SWIFT_MODULE="IndexdSDK"
@@ -26,19 +21,26 @@ SWIFT_MODULE="IndexdSDK"
 BUILD_DIR="$REPO_ROOT/build"
 GEN_DIR="$REPO_ROOT/build/generated"
 
-cd "$SIA_SDK_RS_PATH"
+cd "$REPO_ROOT"
 
 # Build all Apple targets
 for target in aarch64-apple-ios aarch64-apple-ios-sim x86_64-apple-ios aarch64-apple-darwin x86_64-apple-darwin; do
-    cargo build -p "$CRATE" --release --target "$target"
+    case "$target" in
+        *apple-darwin)
+            MACOSX_DEPLOYMENT_TARGET=14.0 cargo build -p "$PACKAGE" --release --target "$target"
+            ;;
+        *)
+            IPHONEOS_DEPLOYMENT_TARGET=16.0 cargo build -p "$PACKAGE" --release --target "$target"
+            ;;
+    esac
 done
 
 # Build host dylib for uniffi-bindgen
-cargo build -p "$CRATE" --release
+cargo build -p "$PACKAGE" --release
 
 # Generate Swift bindings
 mkdir -p "$GEN_DIR"
-cargo run -p "$CRATE" --bin uniffi-bindgen -- \
+cargo run -p "$PACKAGE" --bin uniffi-bindgen -- \
     generate --library "target/release/${LIB}.dylib" \
     --language swift \
     --out-dir "$GEN_DIR" \

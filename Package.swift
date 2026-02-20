@@ -13,7 +13,7 @@ let binaryTarget: Target = useLocalBinary
     : .binaryTarget(
         name: "IndexdSDKFFI",
         url: "https://github.com/SiaFoundation/indexd-sdk/releases/download/v0.1.0/IndexdSDKFFI-0.1.0.xcframework.zip",
-        checksum: "e60caf6daee776714b36866a359adbe8bf9386ac349dd96d429a699c51705b34"
+        checksum: "bba1b626e36a2eea1d0c0b9557ca04b3d7c0652ab84f8f4b72337fd8faef3bc6"
     )
 
 let package = Package(
