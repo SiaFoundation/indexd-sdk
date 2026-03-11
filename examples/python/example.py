@@ -3,7 +3,7 @@ from sys import stdin
 from datetime import datetime, timezone
 from io import BytesIO
 
-from sia_indexd import (
+from indexd_sdk import (
     generate_recovery_phrase,
     AppMeta,
     Builder,
