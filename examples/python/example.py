@@ -40,9 +40,8 @@ set_logger(PrintLogger(), "debug")
 async def main():
     app_id = b"\x01" * 32
 
-    builder = Builder("https://app.sia.storage")
-
-    await builder.request_connection(
+    builder = Builder(
+        "https://app.sia.storage",
         AppMeta(
             id=app_id,
             name="python example",
@@ -50,8 +49,9 @@ async def main():
             service_url="https://example.com",
             logo_url=None,
             callback_url=None,
-        )
+        ),
     )
+    await builder.request_connection()
 
     print(f"Please approve connection {builder.response_url()}")
     await builder.wait_for_approval()
