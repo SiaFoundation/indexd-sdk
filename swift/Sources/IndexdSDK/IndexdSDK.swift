@@ -596,7 +596,7 @@ fileprivate struct FfiConverterTimestamp: FfiConverterRustBuffer {
  *
  * AppKeys can be registered with an indexer during
  * onboarding with a [Builder]. They are derived from
- * a BIP-32 recovery phrase, which can be generated
+ * a BIP-39 recovery phrase, which can be generated
  * using [generate_recovery_phrase].
  *
  * It must be stored securely by the application and
@@ -640,7 +640,7 @@ public protocol AppKeyProtocol: AnyObject, Sendable {
  *
  * AppKeys can be registered with an indexer during
  * onboarding with a [Builder]. They are derived from
- * a BIP-32 recovery phrase, which can be generated
+ * a BIP-39 recovery phrase, which can be generated
  * using [generate_recovery_phrase].
  *
  * It must be stored securely by the application and
@@ -826,7 +826,7 @@ public func FfiConverterTypeAppKey_lower(_ value: AppKey) -> UnsafeMutableRawPoi
 public protocol BuilderProtocol: AnyObject, Sendable {
     
     /**
-     * Attempts to connect using the provided app key and TLS configuration.
+     * Attempts to connect using the provided app key.
      * If the app key is valid, returns Some([SDK]), otherwise returns None.
      *
      * If you receive None, call [Builder::request_connection] to request a new connection.
@@ -847,12 +847,14 @@ public protocol BuilderProtocol: AnyObject, Sendable {
     func register(mnemonic: String) async throws  -> Sdk
     
     /**
-     * Requests a new connection for the application.
+     * Requests connection approval for the application. The
+     * user must approve the connection request for the app to be registered and receive an SDK instance.
      *
-     * # Arguments
-     * * `app` - Details of the application requesting connection.
+     * After calling this method, call [Builder::response_url] to get the URL that the user should
+     * visit to approve the connection request, and [Builder::wait_for_approval] to wait for the
+     * user to approve the connection request.
      */
-    func requestConnection(meta: AppMeta) async throws  -> Builder
+    func requestConnection() async throws  -> Builder
     
     /**
      * Retrieves the response URL for the connection request.
@@ -915,11 +917,12 @@ open class Builder: BuilderProtocol, @unchecked Sendable {
      * to connect using an existing app key, or [Builder::request_connection]
      * to request a new connection.
      */
-public convenience init(indexerUrl: String)throws  {
+public convenience init(indexerUrl: String, appMeta: AppMeta)throws  {
     let pointer =
         try rustCallWithError(FfiConverterTypeBuilderError_lift) {
     uniffi_indexd_ffi_fn_constructor_builder_new(
-        FfiConverterString.lower(indexerUrl),$0
+        FfiConverterString.lower(indexerUrl),
+        FfiConverterTypeAppMeta_lower(appMeta),$0
     )
 }
     self.init(unsafeFromRawPointer: pointer)
@@ -937,7 +940,7 @@ public convenience init(indexerUrl: String)throws  {
 
     
     /**
-     * Attempts to connect using the provided app key and TLS configuration.
+     * Attempts to connect using the provided app key.
      * If the app key is valid, returns Some([SDK]), otherwise returns None.
      *
      * If you receive None, call [Builder::request_connection] to request a new connection.
@@ -988,18 +991,19 @@ open func register(mnemonic: String)async throws  -> Sdk  {
 }
     
     /**
-     * Requests a new connection for the application.
+     * Requests connection approval for the application. The
+     * user must approve the connection request for the app to be registered and receive an SDK instance.
      *
-     * # Arguments
-     * * `app` - Details of the application requesting connection.
+     * After calling this method, call [Builder::response_url] to get the URL that the user should
+     * visit to approve the connection request, and [Builder::wait_for_approval] to wait for the
+     * user to approve the connection request.
      */
-open func requestConnection(meta: AppMeta)async throws  -> Builder  {
+open func requestConnection()async throws  -> Builder  {
     return
         try  await uniffiRustCallAsync(
             rustFutureFunc: {
                 uniffi_indexd_ffi_fn_method_builder_request_connection(
-                    self.uniffiClonePointer(),
-                    FfiConverterTypeAppMeta_lower(meta)
+                    self.uniffiClonePointer()
                 )
             },
             pollFunc: ffi_indexd_ffi_rust_future_poll_pointer,
@@ -3198,17 +3202,51 @@ public func FfiConverterTypeWriter_lower(_ value: Writer) -> UnsafeMutableRawPoi
  */
 public struct Account {
     public var accountKey: String
+    /**
+     * The maximum amount of data that can be pinned to the indexer for this account.
+     */
     public var maxPinnedData: UInt64
+    /**
+     * The amount of data currently pinned to the indexer for this account. This
+     * counts towards max pinned data.
+     */
     public var pinnedData: UInt64
+    /**
+     * The amount of data after erasure encoding. This is the actual amount of data on the network.
+     */
+    public var pinnedSize: UInt64
+    /**
+     * Whether the account is ready to be used. After registering an app, the account may not be
+     * immediately ready as the indexer needs to process the registration and sync with the network.
+     * The account will become ready once it has propagated on the network.
+     */
+    public var ready: Bool
     public var app: App
     public var lastUsed: Date
 
     // Default memberwise initializers are never public by default, so we
     // declare one manually.
-    public init(accountKey: String, maxPinnedData: UInt64, pinnedData: UInt64, app: App, lastUsed: Date) {
+    public init(accountKey: String,
+        /**
+         * The maximum amount of data that can be pinned to the indexer for this account.
+         */maxPinnedData: UInt64,
+        /**
+         * The amount of data currently pinned to the indexer for this account. This
+         * counts towards max pinned data.
+         */pinnedData: UInt64,
+        /**
+         * The amount of data after erasure encoding. This is the actual amount of data on the network.
+         */pinnedSize: UInt64,
+        /**
+         * Whether the account is ready to be used. After registering an app, the account may not be
+         * immediately ready as the indexer needs to process the registration and sync with the network.
+         * The account will become ready once it has propagated on the network.
+         */ready: Bool, app: App, lastUsed: Date) {
         self.accountKey = accountKey
         self.maxPinnedData = maxPinnedData
         self.pinnedData = pinnedData
+        self.pinnedSize = pinnedSize
+        self.ready = ready
         self.app = app
         self.lastUsed = lastUsed
     }
@@ -3230,6 +3268,12 @@ extension Account: Equatable, Hashable {
         if lhs.pinnedData != rhs.pinnedData {
             return false
         }
+        if lhs.pinnedSize != rhs.pinnedSize {
+            return false
+        }
+        if lhs.ready != rhs.ready {
+            return false
+        }
         if lhs.app != rhs.app {
             return false
         }
@@ -3243,6 +3287,8 @@ extension Account: Equatable, Hashable {
         hasher.combine(accountKey)
         hasher.combine(maxPinnedData)
         hasher.combine(pinnedData)
+        hasher.combine(pinnedSize)
+        hasher.combine(ready)
         hasher.combine(app)
         hasher.combine(lastUsed)
     }
@@ -3260,6 +3306,8 @@ public struct FfiConverterTypeAccount: FfiConverterRustBuffer {
                 accountKey: FfiConverterString.read(from: &buf), 
                 maxPinnedData: FfiConverterUInt64.read(from: &buf), 
                 pinnedData: FfiConverterUInt64.read(from: &buf), 
+                pinnedSize: FfiConverterUInt64.read(from: &buf),
+                ready: FfiConverterBool.read(from: &buf),
                 app: FfiConverterTypeApp.read(from: &buf), 
                 lastUsed: FfiConverterTimestamp.read(from: &buf)
         )
@@ -3269,6 +3317,8 @@ public struct FfiConverterTypeAccount: FfiConverterRustBuffer {
         FfiConverterString.write(value.accountKey, into: &buf)
         FfiConverterUInt64.write(value.maxPinnedData, into: &buf)
         FfiConverterUInt64.write(value.pinnedData, into: &buf)
+        FfiConverterUInt64.write(value.pinnedSize, into: &buf)
+        FfiConverterBool.write(value.ready, into: &buf)
         FfiConverterTypeApp.write(value.app, into: &buf)
         FfiConverterTimestamp.write(value.lastUsed, into: &buf)
     }
@@ -3292,14 +3342,16 @@ public func FfiConverterTypeAccount_lower(_ value: Account) -> RustBuffer {
 
 public struct App {
     public var id: String
+    public var name: String
     public var description: String
     public var serviceUrl: String?
     public var logoUrl: String?
 
     // Default memberwise initializers are never public by default, so we
     // declare one manually.
-    public init(id: String, description: String, serviceUrl: String?, logoUrl: String?) {
+    public init(id: String, name: String, description: String, serviceUrl: String?, logoUrl: String?) {
         self.id = id
+        self.name = name
         self.description = description
         self.serviceUrl = serviceUrl
         self.logoUrl = logoUrl
@@ -3316,6 +3368,9 @@ extension App: Equatable, Hashable {
         if lhs.id != rhs.id {
             return false
         }
+        if lhs.name != rhs.name {
+            return false
+        }
         if lhs.description != rhs.description {
             return false
         }
@@ -3330,6 +3385,7 @@ extension App: Equatable, Hashable {
 
     public func hash(into hasher: inout Hasher) {
         hasher.combine(id)
+        hasher.combine(name)
         hasher.combine(description)
         hasher.combine(serviceUrl)
         hasher.combine(logoUrl)
@@ -3346,6 +3402,7 @@ public struct FfiConverterTypeApp: FfiConverterRustBuffer {
         return
             try App(
                 id: FfiConverterString.read(from: &buf), 
+                name: FfiConverterString.read(from: &buf),
                 description: FfiConverterString.read(from: &buf), 
                 serviceUrl: FfiConverterOptionString.read(from: &buf), 
                 logoUrl: FfiConverterOptionString.read(from: &buf)
@@ -3354,6 +3411,7 @@ public struct FfiConverterTypeApp: FfiConverterRustBuffer {
 
     public static func write(_ value: App, into buf: inout [UInt8]) {
         FfiConverterString.write(value.id, into: &buf)
+        FfiConverterString.write(value.name, into: &buf)
         FfiConverterString.write(value.description, into: &buf)
         FfiConverterOptionString.write(value.serviceUrl, into: &buf)
         FfiConverterOptionString.write(value.logoUrl, into: &buf)
@@ -5754,7 +5812,7 @@ public func encodedSize(size: UInt64, dataShards: UInt8, parityShards: UInt8) ->
 })
 }
 /**
- * Generates a new BIP-32 12-word recovery phrase.
+ * Generates a new BIP-39 12-word recovery phrase.
  */
 public func generateRecoveryPhrase() -> String  {
     return try!  FfiConverterString.lift(try! rustCall() {
@@ -5773,7 +5831,7 @@ public func setLogger(logger: Logger, level: String)  {try! rustCall() {
 }
 }
 /**
- * Validates a BIP-32 recovery phrase.
+ * Validates a BIP-39 recovery phrase.
  */
 public func validateRecoveryPhrase(phrase: String)throws   {try rustCallWithError(FfiConverterTypeSeedError_lift) {
     uniffi_indexd_ffi_fn_func_validate_recovery_phrase(
@@ -5800,13 +5858,13 @@ private let initializationResult: InitializationResult = {
     if (uniffi_indexd_ffi_checksum_func_encoded_size() != 51818) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_indexd_ffi_checksum_func_generate_recovery_phrase() != 35343) {
+    if (uniffi_indexd_ffi_checksum_func_generate_recovery_phrase() != 3495) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_indexd_ffi_checksum_func_set_logger() != 36651) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_indexd_ffi_checksum_func_validate_recovery_phrase() != 56714) {
+    if (uniffi_indexd_ffi_checksum_func_validate_recovery_phrase() != 30126) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_indexd_ffi_checksum_method_appkey_export() != 242) {
@@ -5821,13 +5879,13 @@ private let initializationResult: InitializationResult = {
     if (uniffi_indexd_ffi_checksum_method_appkey_verify_signature() != 47305) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_indexd_ffi_checksum_method_builder_connected() != 41238) {
+    if (uniffi_indexd_ffi_checksum_method_builder_connected() != 18532) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_indexd_ffi_checksum_method_builder_register() != 34757) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_indexd_ffi_checksum_method_builder_request_connection() != 58655) {
+    if (uniffi_indexd_ffi_checksum_method_builder_request_connection() != 7746) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_indexd_ffi_checksum_method_builder_response_url() != 18056) {
@@ -5950,7 +6008,7 @@ private let initializationResult: InitializationResult = {
     if (uniffi_indexd_ffi_checksum_constructor_appkey_new() != 62590) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_indexd_ffi_checksum_constructor_builder_new() != 25722) {
+    if (uniffi_indexd_ffi_checksum_constructor_builder_new() != 27078) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_indexd_ffi_checksum_constructor_encryptionkey_parse() != 42073) {

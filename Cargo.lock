@@ -341,9 +341,9 @@ dependencies = [
 
 [[package]]
 name = "chrono"
-version = "0.4.43"
+version = "0.4.44"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fac4744fb15ae8337dc853fee7fb3f4e48c0fbaa23d0afe49c447b4fab126118"
+checksum = "c673075a2e0e5f4a1dde27ce9dee1ea4558c7ffe648f576438a20ca1d2acc4b0"
 dependencies = [
  "iana-time-zone",
  "js-sys",
@@ -550,9 +550,9 @@ dependencies = [
 
 [[package]]
 name = "darling"
-version = "0.21.3"
+version = "0.23.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9cdf337090841a411e2a7f3deb9187445851f91b309c0c0a29e05f74a00a48c0"
+checksum = "25ae13da2f202d56bd7f91c25fba009e7717a1e4a1cc98a76d844b65ae912e9d"
 dependencies = [
  "darling_core",
  "darling_macro",
@@ -560,11 +560,10 @@ dependencies = [
 
 [[package]]
 name = "darling_core"
-version = "0.21.3"
+version = "0.23.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1247195ecd7e3c85f83c8d2a366e4210d588e802133e1e355180a9870b517ea4"
+checksum = "9865a50f7c335f53564bb694ef660825eb8610e0a53d3e11bf1b0d3df31e03b0"
 dependencies = [
- "fnv",
  "ident_case",
  "proc-macro2",
  "quote",
@@ -574,9 +573,9 @@ dependencies = [
 
 [[package]]
 name = "darling_macro"
-version = "0.21.3"
+version = "0.23.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d38308df82d1080de0afee5d069fa14b0326a88c14f15c5ccda35b4a6c414c81"
+checksum = "ac3984ec7bd6cfa798e62b4a642426a5be0e68f9401cfc2a01e3fa9ea2fcdb8d"
 dependencies = [
  "darling_core",
  "quote",
@@ -1203,8 +1202,8 @@ dependencies = [
 
 [[package]]
 name = "indexd"
-version = "0.2.0"
-source = "git+https://github.com/SiaFoundation/sia-sdk-rs#a37a17f450c022b98cc07e098bd8b21eeae80c91"
+version = "0.4.0"
+source = "git+https://github.com/SiaFoundation/sia-sdk-rs#ebc8fe9ca42fa8088a9c37bce3f15f27df237743"
 dependencies = [
  "base64",
  "blake2",
@@ -1240,8 +1239,8 @@ dependencies = [
 
 [[package]]
 name = "indexd_ffi"
-version = "0.3.0"
-source = "git+https://github.com/SiaFoundation/sia-sdk-rs#a37a17f450c022b98cc07e098bd8b21eeae80c91"
+version = "0.4.0"
+source = "git+https://github.com/SiaFoundation/sia-sdk-rs#ebc8fe9ca42fa8088a9c37bce3f15f27df237743"
 dependencies = [
  "async-trait",
  "base64",
@@ -1925,9 +1924,9 @@ dependencies = [
 
 [[package]]
 name = "rustls"
-version = "0.23.36"
+version = "0.23.37"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c665f33d38cea657d9614f766881e4d510e0eda4239891eea56b4cadcf01801b"
+checksum = "758025cb5fccfd3bc2fd74708fd4682be41d99e5dff73c377c0646c6012c73a4"
 dependencies = [
  "log",
  "once_cell",
@@ -2177,9 +2176,9 @@ dependencies = [
 
 [[package]]
 name = "serde_with"
-version = "3.16.1"
+version = "3.18.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4fa237f2807440d238e0364a218270b98f767a00d3dada77b1c53ae88940e2e7"
+checksum = "dd5414fad8e6907dbdd5bc441a50ae8d6e26151a03b1de04d89a5576de61d01f"
 dependencies = [
  "base64",
  "chrono",
@@ -2196,9 +2195,9 @@ dependencies = [
 
 [[package]]
 name = "serde_with_macros"
-version = "3.16.1"
+version = "3.18.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "52a8e3ca0ca629121f70ab50f95249e5a6f925cc0f6ffe8256c45b728875706c"
+checksum = "d3db8978e608f1fe7357e211969fd9abdcae80bac1ba7a3369bb7eb6b404eb65"
 dependencies = [
  "darling",
  "proc-macro2",
@@ -2225,8 +2224,8 @@ checksum = "0fda2ff0d084019ba4d7c6f371c95d8fd75ce3524c3cb8fb653a3023f6323e64"
 
 [[package]]
 name = "sia-sdk-derive"
-version = "0.0.6"
-source = "git+https://github.com/SiaFoundation/sia-sdk-rs#a37a17f450c022b98cc07e098bd8b21eeae80c91"
+version = "0.0.7"
+source = "git+https://github.com/SiaFoundation/sia-sdk-rs#ebc8fe9ca42fa8088a9c37bce3f15f27df237743"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -2235,8 +2234,8 @@ dependencies = [
 
 [[package]]
 name = "sia_sdk"
-version = "0.2.0"
-source = "git+https://github.com/SiaFoundation/sia-sdk-rs#a37a17f450c022b98cc07e098bd8b21eeae80c91"
+version = "0.2.2"
+source = "git+https://github.com/SiaFoundation/sia-sdk-rs#ebc8fe9ca42fa8088a9c37bce3f15f27df237743"
 dependencies = [
  "base64",
  "bip39",
@@ -2502,9 +2501,9 @@ checksum = "1f3ccbac311fea05f86f61904b462b55fb3df8837a366dfc601a0161d0532f20"
 
 [[package]]
 name = "tokio"
-version = "1.49.0"
+version = "1.50.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "72a2903cd7736441aac9df9d7688bd0ce48edccaadf181c3b90be801e81d3d86"
+checksum = "27ad5e34374e03cfffefc301becb44e9dc3c17584f414349ebe29ed26661822d"
 dependencies = [
  "bytes",
  "libc",

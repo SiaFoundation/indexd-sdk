@@ -25,15 +25,15 @@ from .sia_indexd.indexd_ffi import (
 class Builder:
     """Wrapper around the UniFFI Builder that auto-initializes the event loop."""
 
-    def __init__(self, base_url: str):
+    def __init__(self, base_url: str, app_meta: AppMeta):
         try:
             uniffi_set_event_loop(asyncio.get_running_loop())
         except RuntimeError:
             pass  # No running loop yet
-        self._inner = _Builder(base_url)
+        self._inner = _Builder(base_url, app_meta)
 
-    async def request_connection(self, app_meta: AppMeta) -> None:
-        return await self._inner.request_connection(app_meta)
+    async def request_connection(self) -> None:
+        return await self._inner.request_connection()
 
     def response_url(self) -> str:
         return self._inner.response_url()
