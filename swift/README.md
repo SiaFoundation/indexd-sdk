@@ -16,7 +16,7 @@ Add to your `Package.swift`:
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/SiaFoundation/indexd-sdk", from: "0.1.0")
+    .package(url: "https://github.com/SiaFoundation/sia-storage-sdk", from: "0.1.0")
 ]
 ```
 
@@ -26,7 +26,7 @@ Then add `SiaStorageSDK` to your target's dependencies:
 .target(
     name: "YourTarget",
     dependencies: [
-        .product(name: "SiaStorageSDK", package: "indexd-sdk")
+        .product(name: "SiaStorageSDK", package: "sia-storage-sdk")
     ]
 )
 ```

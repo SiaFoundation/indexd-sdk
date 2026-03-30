@@ -1,6 +1,6 @@
 # sia-storage-sdk
 
-Python SDK for interacting with a Sia network indexer.
+Python SDK for interacting with the Sia decentralized storage network.
 
 ## Installation
 

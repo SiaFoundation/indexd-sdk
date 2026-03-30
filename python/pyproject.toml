@@ -28,8 +28,8 @@ classifiers = [
 
 [project.urls]
 Homepage = "https://sia.tech"
-Repository = "https://github.com/SiaFoundation/indexd-sdk"
-Documentation = "https://github.com/SiaFoundation/indexd-sdk"
+Repository = "https://github.com/SiaFoundation/sia-storage-sdk"
+Documentation = "https://github.com/SiaFoundation/sia-storage-sdk"
 
 [tool.maturin]
 manifest-path = "../Cargo.toml"
