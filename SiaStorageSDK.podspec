@@ -7,11 +7,11 @@ Pod::Spec.new do |s|
     Built with Rust and UniFFI for high performance and type safety.
   DESC
 
-  s.homepage         = 'https://github.com/SiaFoundation/indexd-sdk'
+  s.homepage         = 'https://github.com/SiaFoundation/sia-storage-sdk'
   s.license          = { :type => 'MIT', :file => 'LICENSE' }
   s.author           = { 'Sia Foundation' => 'hello@sia.tech' }
   s.source           = {
-    :git => 'https://github.com/SiaFoundation/indexd-sdk.git',
+    :git => 'https://github.com/SiaFoundation/sia-storage-sdk.git',
     :tag => "v#{s.version}"
   }
 
@@ -37,7 +37,7 @@ Pod::Spec.new do |s|
   s.prepare_command = <<-CMD
     set -euo pipefail
     VERSION="0.1.0"
-    BASE_URL="https://github.com/SiaFoundation/indexd-sdk/releases/download/v${VERSION}"
+    BASE_URL="https://github.com/SiaFoundation/sia-storage-sdk/releases/download/v${VERSION}"
 
     # Download the XCFramework and checksum file
     curl -fL --retry 3 -o SiaStorageSDKFFI.xcframework.zip "${BASE_URL}/SiaStorageSDKFFI-${VERSION}.xcframework.zip"

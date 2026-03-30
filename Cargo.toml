@@ -2,9 +2,9 @@
 name = "sia-storage-sdk"
 version = "0.3.0"
 edition = "2024"
-repository = "https://github.com/SiaFoundation/indexd-sdk"
+repository = "https://github.com/SiaFoundation/sia-storage-sdk"
 license = "MIT"
-description = "UniFFI bindings for the Sia network indexer SDK"
+description = "UniFFI bindings for the Sia Storage SDK"
 authors = ["The Sia Foundation"]
 
 [lib]

@@ -15,7 +15,7 @@ let package = Package(
         .executableTarget(
             name: "SiaStorageExample",
             dependencies: [
-                .product(name: "SiaStorageSDK", package: "indexd-sdk"),
+                .product(name: "SiaStorageSDK", package: "sia-storage-sdk"),
             ],
             path: "Sources"
         )
