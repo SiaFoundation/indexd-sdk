@@ -76,6 +76,7 @@ class Sdk(_Sdk):
 
     @classmethod
     def _from_ffi(cls, inner: _Sdk):
+        # exploits UniFFI's internals to wrap the class
         return cls._make_instance_(inner._uniffi_clone_pointer())
 
     async def upload(self, r: BinaryIO, options: Optional[UploadOptions] = None) -> PinnedObject:
