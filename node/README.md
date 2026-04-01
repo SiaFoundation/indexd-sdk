@@ -85,7 +85,7 @@ A complete working example is available in [examples/node/](../examples/node/).
 
 ```sh
 # Install uniffi-bindgen-node-js (first time only)
-cargo install --git https://github.com/SiaFoundation/uniffi-bindgen-node-js
+cargo install --git https://github.com/SiaFoundation/uniffi-bindgen-node-js --rev cafa761cc510e48c51ed6e45b400429f59f8f53e
 
 # Build native library, generate bindings, and assemble the package
 ./node/build.sh

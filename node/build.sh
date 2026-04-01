@@ -4,7 +4,7 @@ set -euo pipefail
 # Build Node.js package for SiaStorageSDK
 #
 # Prerequisites:
-#   cargo install --git https://github.com/SiaFoundation/uniffi-bindgen-node-js
+#   cargo install --git https://github.com/SiaFoundation/uniffi-bindgen-node-js --rev cafa761cc510e48c51ed6e45b400429f59f8f53e
 #
 # Usage:
 #   ./node/build.sh
@@ -46,7 +46,7 @@ LIB_PATH="target/release/${LIB}.${EXT}"
 BINDGEN="${UNIFFI_BINDGEN_NODE_JS:-$(command -v uniffi-bindgen-node-js 2>/dev/null || true)}"
 if [ -z "$BINDGEN" ]; then
     echo "uniffi-bindgen-node-js not found. Install with:"
-    echo "  cargo install --git https://github.com/SiaFoundation/uniffi-bindgen-node-js"
+    echo "  cargo install --git https://github.com/SiaFoundation/uniffi-bindgen-node-js --rev cafa761cc510e48c51ed6e45b400429f59f8f53e"
     exit 1
 fi
 
