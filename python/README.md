@@ -27,8 +27,6 @@ from sia_storage import (
     Builder,
     Logger,
     UploadOptions,
-    BytesReader,
-    download_bytes,
 )
 
 
@@ -68,19 +66,18 @@ async def main():
 
     # Upload data
     upload = await sdk.upload_packed(UploadOptions())
-    reader = BytesReader(BytesIO(b"hello, world!"))
-    await upload.add(reader)
+    await upload.add(BytesIO(b"hello, world!"))
     objects = await upload.finalize()
 
     # Download data
-    data = await download_bytes(sdk, objects[-1])
+    buf = BytesIO()
+    await sdk.download(buf, objects[-1])
 
 
 asyncio.run(main())
 ```
 
 `PrintLogger` is a user-defined class that extends the SDK's `Logger` base class.
-`BytesReader` is provided by the SDK to adapt any file-like object to the `Reader` interface.
 
 A complete working example is available in [examples/python/](../examples/python/).
 
