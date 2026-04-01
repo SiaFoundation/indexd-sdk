@@ -130,7 +130,7 @@ jobs:
 
       - name: Test import
         run: |
-          python -c "from sia_storage_sdk import generate_recovery_phrase, SDK, Builder; print('Import successful'); print(generate_recovery_phrase()[:20] + '...')"
+          python -c "from sia_storage import generate_recovery_phrase, SDK, Builder; print('Import successful'); print(generate_recovery_phrase()[:20] + '...')"
 
   publish:
     name: Publish to PyPI
