@@ -2246,14 +2246,6 @@ dependencies = [
 
 [[package]]
 name = "sia_storage"
-version = "0.3.0"
-dependencies = [
- "sia_storage_ffi",
- "uniffi 0.29.4",
-]
-
-[[package]]
-name = "sia_storage"
 version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "54c82518a2b2ffce215cac75cc7e527299b51d5e4c841f0401777ea159717350"
@@ -2302,7 +2294,7 @@ dependencies = [
  "rustls",
  "rustls-platform-verifier",
  "sia_core",
- "sia_storage 0.5.0",
+ "sia_storage",
  "thiserror 2.0.18",
  "tokio",
  "tokio-stream",
@@ -2311,6 +2303,14 @@ dependencies = [
  "uniffi 0.30.0",
  "webpki-roots",
  "zeroize",
+]
+
+[[package]]
+name = "sia_storage_sdk"
+version = "0.3.0"
+dependencies = [
+ "sia_storage_ffi",
+ "uniffi 0.29.4",
 ]
 
 [[package]]
