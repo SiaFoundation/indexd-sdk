@@ -74,7 +74,8 @@ fun main() = runBlocking {
     println("\nConvenience function examples...")
 
     val obj = sdk.uploadBytes("hello from uploadBytes!".toByteArray())
-    println("Uploaded ${obj.size()} bytes with uploadBytes()")
+    sdk.pinObject(obj)
+    println("Uploaded and pinned ${obj.size()} bytes with uploadBytes()")
 
     val data = sdk.downloadBytes(obj)
     println("Downloaded with downloadBytes(): \"${String(data)}\"")
