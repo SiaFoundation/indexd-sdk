@@ -79,6 +79,12 @@ async function main() {
   let elapsed = Date.now() - start;
   console.log(`Upload finished ${objects.length} objects in ${elapsed}ms`);
 
+  // Pin each object to the indexer
+  for (const obj of objects) {
+    await sdk.pin_object(obj);
+    console.log(`Pinned object ${obj.id()}`);
+  }
+
   start = Date.now();
   const lastObj = objects[objects.length - 1];
   console.log(`Downloading object ${lastObj.id()} ${lastObj.size()} bytes`);
