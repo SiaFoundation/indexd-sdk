@@ -19,3 +19,5 @@ python/sia_storage/sia_storage/
 
 build/
 target/
+node_modules/
+node/generated/
