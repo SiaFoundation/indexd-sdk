@@ -2134,7 +2134,7 @@ dependencies = [
 
 [[package]]
 name = "sia_storage_sdk"
-version = "0.3.0"
+version = "0.4.0"
 dependencies = [
  "sia_storage_ffi",
  "uniffi 0.29.4",
