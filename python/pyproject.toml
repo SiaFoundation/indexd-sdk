@@ -25,11 +25,12 @@ classifiers = [
     "Programming Language :: Rust",
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
+readme = "./README.md"
 
 [project.urls]
 Homepage = "https://sia.tech"
 Repository = "https://github.com/SiaFoundation/sia-storage-sdk"
-Documentation = "https://github.com/SiaFoundation/sia-storage-sdk"
+Documentation = "https://devs.sia.storage/docs/quickstart"
 
 [tool.maturin]
 manifest-path = "../Cargo.toml"
