@@ -13,7 +13,7 @@ let binaryTarget: Target = useLocalBinary
     : .binaryTarget(
         name: "SiaStorageSDKFFI",
         url: "https://github.com/SiaFoundation/sia-storage-sdk/releases/download/v0.4.1/SiaStorageSDKFFI-0.4.1.xcframework.zip",
-        checksum: "8326daa482e3c7e8599622b030cfb5d2cf303069be566c96483ba26941e6aa7d"
+        checksum: "0000000000000000000000000000000000000000000000000000000000000000"
     )
 
 let package = Package(
