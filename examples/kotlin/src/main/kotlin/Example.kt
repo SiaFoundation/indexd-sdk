@@ -2,11 +2,12 @@ import kotlinx.coroutines.runBlocking
 import sia.indexd.*
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
+import java.util.Base64
 
 class PrintLogger : Logger {
     override fun debug(msg: String) = println("DEBUG $msg")
     override fun info(msg: String) = println("INFO $msg")
-    override fun warn(msg: String) = println("WARN $msg")
+    override fun warn(msg: String) = println("WARNING $msg")
     override fun error(msg: String) = println("ERROR $msg")
 }
 
@@ -39,7 +40,7 @@ fun main() = runBlocking {
     val sdk = builder.register(mnemonic)
 
     val appKey = sdk.appKey()
-    println("App registered ${appKey.export()}")
+    println("App registered: ${Base64.getEncoder().encodeToString(appKey.export())}")
 
     println("Connected to indexer")
 

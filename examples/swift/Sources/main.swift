@@ -30,10 +30,8 @@ struct SiaStorageSDKExample {
         setLogger(logger: PrintLogger(), level: "debug")
 
         let appId = Data(repeating: 0x01, count: 32)
-        let indexerUrl = ProcessInfo.processInfo.environment["SIA_INDEXER_URL"] ?? "https://app.sia.storage"
-
         do {
-            let builder = try await Builder(indexerUrl: indexerUrl, appMeta: AppMeta(
+            let builder = try await Builder(indexerUrl: "https://app.sia.storage", appMeta: AppMeta(
                 id: appId,
                 name: "swift example",
                 description: "an example app",
@@ -44,11 +42,11 @@ struct SiaStorageSDKExample {
                 .requestConnection()
 
             let responseUrl = try builder.responseUrl()
-            print("Please approve connection: \(responseUrl)")
+            print("Please approve connection \(responseUrl)")
 
             let approvedBuilder = try await builder.waitForApproval()
 
-            print("Enter mnemonic (or press Enter to generate new):")
+            print("Enter mnemonic (or leave empty to generate new):")
             var mnemonic = readLine()?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
 
             if mnemonic.isEmpty {
