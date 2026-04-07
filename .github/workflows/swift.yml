@@ -186,6 +186,10 @@ jobs:
         env:
           VERSION: ${{ github.event.inputs.version }}
         run: |
+          if [ -z "$SPM_CHECKSUM" ]; then
+            echo "Error: SPM_CHECKSUM not set"
+            exit 1
+          fi
           sed -i "s/checksum: \".*\"/checksum: \"$SPM_CHECKSUM\"/" Package.swift
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
