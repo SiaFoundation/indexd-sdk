@@ -75,7 +75,7 @@ struct SiaStorageSDKExample {
         setLogger(logger: PrintLogger(), level: "debug")
 
         let appId = Data(repeating: 0x01, count: 32)
-        let indexerUrl = ProcessInfo.processInfo.environment["SIA_INDEXER_URL"] ?? "https://app.sia.storage"
+        let indexerUrl = ProcessInfo.processInfo.environment["SIA_INDEXER_URL"] ?? "https://sia.storage"
 
         do {
             let builder = try await Builder(indexerUrl: indexerUrl, appMeta: AppMeta(
