@@ -24,7 +24,6 @@ dependencies {
 ```kotlin
 import kotlinx.coroutines.runBlocking
 import sia.indexd.*
-import java.io.ByteArrayInputStream
 
 fun main() = runBlocking {
     setLogger(PrintLogger(), "debug")
@@ -50,19 +49,24 @@ fun main() = runBlocking {
     val mnemonic = generateRecoveryPhrase()
     val sdk = builder.register(mnemonic)
 
-    // Upload data
-    val upload = sdk.uploadPacked(UploadOptions())
-    val reader = StreamReader(ByteArrayInputStream("hello, world!".toByteArray()))
-    upload.add(reader)
-    val objects = upload.finalize()
+    // Upload a single object. Progress callbacks accept plain lambdas.
+    val obj = sdk.upload(
+        PinnedObject(),
+        "hello, world!".toByteArray(),
+        UploadOptions(shardUploaded = progressCallback { p ->
+            println("uploaded shard ${p.shardIndex} of slab ${p.slabIndex} in ${p.elapsedMs}ms")
+        }),
+    )
+    sdk.pinObject(obj)
 
-    // Download data
-    val data = sdk.downloadBytes(objects.last())
+    // Download streams chunk-by-chunk. `readAll` drains into memory;
+    // use `writeTo(OutputStream)` or `asFlow()` for other sinks.
+    val data = sdk.download(obj, DownloadOptions()).readAll()
+    println(String(data))
 }
 ```
 
 `PrintLogger` is a user-defined class that implements the SDK's `Logger` interface.
-`StreamReader` is provided by the SDK to adapt any `InputStream` to the `Reader` interface.
 
 A complete working example is available in [examples/kotlin/](../examples/kotlin/).
 

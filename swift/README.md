@@ -65,19 +65,24 @@ let approvedBuilder = try await builder.waitForApproval()
 let mnemonic = generateRecoveryPhrase()
 let sdk = try await approvedBuilder.register(mnemonic: mnemonic)
 
-// Upload data
-let upload = await sdk.uploadPacked(options: UploadOptions())
-let reader = BytesReader(data: myData)
-try await upload.add(reader: reader)
-let objects = try await upload.finalize()
+// Upload a single object. Progress callbacks accept plain closures.
+let obj = try await sdk.upload(
+    object: PinnedObject(),
+    data: "hello, world!".data(using: .utf8)!,
+    options: UploadOptions(shardUploaded: progressCallback { p in
+        print("uploaded shard \(p.shardIndex) of slab \(p.slabIndex) in \(p.elapsedMs)ms")
+    })
+)
+try await sdk.pinObject(object: obj)
 
-// Download data
-let writer = BytesWriter()
-try await sdk.download(w: writer, object: objects[0], options: DownloadOptions())
+// Download streams chunk-by-chunk. `readAll` drains into memory;
+// `write(to:)` streams to an OutputStream, or iterate with `for try await`.
+let d = try sdk.download(object: obj, options: DownloadOptions())
+let data = try await d.readAll()
+print(String(data: data, encoding: .utf8) ?? "")
 ```
 
-`MyLogger`, `BytesReader`, and `BytesWriter` are user-defined types that conform to
-the SDK's `Logger`, `Reader`, and `Writer` protocols.
+`MyLogger` is a user-defined type that conforms to the SDK's `Logger` protocol.
 
 A complete working example is available in [examples/swift/](../examples/swift/).
 
