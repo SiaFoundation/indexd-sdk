@@ -48,7 +48,7 @@ import SiaStorageSDK
 setLogger(logger: MyLogger(), level: "debug")
 
 // Create a builder and connect
-let builder = try await Builder(indexerUrl: "https://sia.storage", appMeta: AppMeta(
+let builder = try await Builder(indexerUrl: "https://sia.storage", appMeta: AppMetadata(
     id: appId,
     name: "My App",
     description: "App description",

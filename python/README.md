@@ -22,7 +22,7 @@ from io import BytesIO
 
 from sia_storage import (
     generate_recovery_phrase,
-    AppMeta,
+    AppMetadata,
     Builder,
     DownloadOptions,
     PinnedObject,
@@ -35,7 +35,7 @@ async def main():
 
     builder = Builder(
         "https://sia.storage",
-        AppMeta(
+        AppMetadata(
             id=app_id,
             name="My App",
             description="App description",

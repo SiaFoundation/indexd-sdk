@@ -14,7 +14,7 @@ from typing import Any, BinaryIO, Callable, Optional, Union
 
 from .sia_storage.sia_storage_ffi import (
     AppKey,
-    AppMeta,
+    AppMetadata,
     Builder as _Builder,
     Download as _Download,
     DownloadOptions,
@@ -74,7 +74,7 @@ class Builder(_Builder):
     connection.
     """
 
-    def __init__(self, indexer_url: str, app_meta: AppMeta):
+    def __init__(self, indexer_url: str, app_meta: AppMetadata):
         try:
             uniffi_set_event_loop(asyncio.get_running_loop())
         except RuntimeError:
