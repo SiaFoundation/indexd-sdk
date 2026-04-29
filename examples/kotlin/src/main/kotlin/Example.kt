@@ -26,7 +26,7 @@ fun main() = runBlocking {
 
     val appId = ByteArray(32) { 0x01 }
 
-    val builder = Builder("https://sia.storage", AppMeta(
+    val builder = Builder("https://sia.storage", AppMetadata(
         id = appId,
         name = "kotlin example",
         description = "an example app",

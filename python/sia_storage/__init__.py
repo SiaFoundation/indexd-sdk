@@ -12,7 +12,7 @@ from sia_storage.sia_storage.sia_storage_ffi import (
     # Records
     Account,
     App,
-    AppMeta,
+    AppMetadata,
     Host,
     NetAddress,
     ObjectEvent,
@@ -73,7 +73,7 @@ __all__ = [
     # Records
     "Account",
     "App",
-    "AppMeta",
+    "AppMetadata",
     "Host",
     "NetAddress",
     "ObjectEvent",

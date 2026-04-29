@@ -933,12 +933,12 @@ open class Builder: BuilderProtocol, @unchecked Sendable {
      * to connect using an existing app key, or [Builder::request_connection]
      * to request a new connection.
      */
-public convenience init(indexerUrl: String, appMeta: AppMeta)throws  {
+public convenience init(indexerUrl: String, appMeta: AppMetadata)throws  {
     let handle =
         try rustCallWithError(FfiConverterTypeBuilderError_lift) {
     uniffi_sia_storage_ffi_fn_constructor_builder_new(
         FfiConverterString.lower(indexerUrl),
-        FfiConverterTypeAppMeta_lower(appMeta),$0
+        FfiConverterTypeAppMetadata_lower(appMeta),$0
     )
 }
     self.init(unsafeFromHandle: handle)
@@ -1597,16 +1597,22 @@ public func FfiConverterTypeLogger_lower(_ value: Logger) -> UInt64 {
 public protocol PackedUploadProtocol: AnyObject, Sendable {
     
     /**
-     * Adds a new object to the upload. The data will be read until EOF and packed into
-     * the upload. The resulting object will contain the metadata needed to download the object. The caller
-     * must call [finalize](Self::finalize) to get the resulting objects after all objects have been added.
+     * Adds a new object to the upload. The data is read until EOF and packed into
+     * the current slab. Returns the number of bytes consumed; call
+     * [finalize](Self::finalize) once all objects have been added to get the
+     * resulting objects.
+     *
+     * If the reader errors part-way, it's safe to continue calling
+     * [add](Self::add); no object is registered for the failed call. Or call
+     * [finalize](Self::finalize) to collect the objects added so far.
      */
     func add(reader: Reader) async throws  -> UInt64
     
     /**
-     * Cancels the upload. This will immediately cancel the upload and return.
+     * Cancels the upload. This will immediately cancel any in-progress [add](Self::add) or [finalize](Self::finalize) operations and prevent
+     * any new ones from starting. Any in-flight operations will return an error once cancelled.
      */
-    func cancel() async throws 
+    func cancel() 
     
     /**
      * Finalizes the upload and returns the resulting objects. This will wait for all readers
@@ -1694,9 +1700,14 @@ open class PackedUpload: PackedUploadProtocol, @unchecked Sendable {
 
     
     /**
-     * Adds a new object to the upload. The data will be read until EOF and packed into
-     * the upload. The resulting object will contain the metadata needed to download the object. The caller
-     * must call [finalize](Self::finalize) to get the resulting objects after all objects have been added.
+     * Adds a new object to the upload. The data is read until EOF and packed into
+     * the current slab. Returns the number of bytes consumed; call
+     * [finalize](Self::finalize) once all objects have been added to get the
+     * resulting objects.
+     *
+     * If the reader errors part-way, it's safe to continue calling
+     * [add](Self::add); no object is registered for the failed call. Or call
+     * [finalize](Self::finalize) to collect the objects added so far.
      */
 open func add(reader: Reader)async throws  -> UInt64  {
     return
@@ -1716,23 +1727,14 @@ open func add(reader: Reader)async throws  -> UInt64  {
 }
     
     /**
-     * Cancels the upload. This will immediately cancel the upload and return.
+     * Cancels the upload. This will immediately cancel any in-progress [add](Self::add) or [finalize](Self::finalize) operations and prevent
+     * any new ones from starting. Any in-flight operations will return an error once cancelled.
      */
-open func cancel()async throws   {
-    return
-        try  await uniffiRustCallAsync(
-            rustFutureFunc: {
-                uniffi_sia_storage_ffi_fn_method_packedupload_cancel(
-                    self.uniffiCloneHandle()
-                    
-                )
-            },
-            pollFunc: ffi_sia_storage_ffi_rust_future_poll_void,
-            completeFunc: ffi_sia_storage_ffi_rust_future_complete_void,
-            freeFunc: ffi_sia_storage_ffi_rust_future_free_void,
-            liftFunc: { $0 },
-            errorHandler: FfiConverterTypeUploadError_lift
-        )
+open func cancel()  {try! rustCall() {
+    uniffi_sia_storage_ffi_fn_method_packedupload_cancel(
+            self.uniffiCloneHandle(),$0
+    )
+}
 }
     
     /**
@@ -3306,7 +3308,7 @@ public func FfiConverterTypeApp_lower(_ value: App) -> RustBuffer {
 /**
  * Metadata about an application connecting to the indexer.
  */
-public struct AppMeta: Equatable, Hashable {
+public struct AppMetadata: Equatable, Hashable {
     public var id: Data
     public var name: String
     public var description: String
@@ -3331,16 +3333,16 @@ public struct AppMeta: Equatable, Hashable {
 }
 
 #if compiler(>=6)
-extension AppMeta: Sendable {}
+extension AppMetadata: Sendable {}
 #endif
 
 #if swift(>=5.8)
 @_documentation(visibility: private)
 #endif
-public struct FfiConverterTypeAppMeta: FfiConverterRustBuffer {
-    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> AppMeta {
+public struct FfiConverterTypeAppMetadata: FfiConverterRustBuffer {
+    public static func read(from buf: inout (data: Data, offset: Data.Index)) throws -> AppMetadata {
         return
-            try AppMeta(
+            try AppMetadata(
                 id: FfiConverterData.read(from: &buf), 
                 name: FfiConverterString.read(from: &buf), 
                 description: FfiConverterString.read(from: &buf), 
@@ -3350,7 +3352,7 @@ public struct FfiConverterTypeAppMeta: FfiConverterRustBuffer {
         )
     }
 
-    public static func write(_ value: AppMeta, into buf: inout [UInt8]) {
+    public static func write(_ value: AppMetadata, into buf: inout [UInt8]) {
         FfiConverterData.write(value.id, into: &buf)
         FfiConverterString.write(value.name, into: &buf)
         FfiConverterString.write(value.description, into: &buf)
@@ -3364,15 +3366,15 @@ public struct FfiConverterTypeAppMeta: FfiConverterRustBuffer {
 #if swift(>=5.8)
 @_documentation(visibility: private)
 #endif
-public func FfiConverterTypeAppMeta_lift(_ buf: RustBuffer) throws -> AppMeta {
-    return try FfiConverterTypeAppMeta.lift(buf)
+public func FfiConverterTypeAppMetadata_lift(_ buf: RustBuffer) throws -> AppMetadata {
+    return try FfiConverterTypeAppMetadata.lift(buf)
 }
 
 #if swift(>=5.8)
 @_documentation(visibility: private)
 #endif
-public func FfiConverterTypeAppMeta_lower(_ value: AppMeta) -> RustBuffer {
-    return FfiConverterTypeAppMeta.lower(value)
+public func FfiConverterTypeAppMetadata_lower(_ value: AppMetadata) -> RustBuffer {
+    return FfiConverterTypeAppMetadata.lower(value)
 }
 
 
@@ -5570,10 +5572,10 @@ private let initializationResult: InitializationResult = {
     if (uniffi_sia_storage_ffi_checksum_method_download_read() != 37314) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_sia_storage_ffi_checksum_method_packedupload_add() != 21090) {
+    if (uniffi_sia_storage_ffi_checksum_method_packedupload_add() != 51351) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_sia_storage_ffi_checksum_method_packedupload_cancel() != 48516) {
+    if (uniffi_sia_storage_ffi_checksum_method_packedupload_cancel() != 64519) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_sia_storage_ffi_checksum_method_packedupload_finalize() != 48196) {
@@ -5714,7 +5716,7 @@ private let initializationResult: InitializationResult = {
     if (uniffi_sia_storage_ffi_checksum_constructor_appkey_new() != 6640) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_sia_storage_ffi_checksum_constructor_builder_new() != 20006) {
+    if (uniffi_sia_storage_ffi_checksum_constructor_builder_new() != 24760) {
         return InitializationResult.apiChecksumMismatch
     }
 

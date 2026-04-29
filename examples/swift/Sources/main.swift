@@ -39,7 +39,7 @@ struct SiaStorageSDKExample {
 
         let appId = Data(repeating: 0x01, count: 32)
         do {
-            let builder = try await Builder(indexerUrl: "https://sia.storage", appMeta: AppMeta(
+            let builder = try await Builder(indexerUrl: "https://sia.storage", appMeta: AppMetadata(
                 id: appId,
                 name: "swift example",
                 description: "an example app",
